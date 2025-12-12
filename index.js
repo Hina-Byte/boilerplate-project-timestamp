@@ -24,6 +24,45 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+// Timestamp API
+// Timestamp API
+app.get("/api/:date?", (req, res) => {
+  let dateString = req.params.date;
+
+  if (!dateString) {
+    // Sin parámetro: fecha actual
+    const now = new Date();
+    return res.json({ unix: now.getTime(), utc: now.toUTCString() });
+  }
+
+  // Si es un número grande, interpretarlo como timestamp
+  if (/^\d+$/.test(dateString)) {
+    dateString = parseInt(dateString);
+  }
+
+  const date = new Date(dateString);
+
+  if (date.toString() === "Invalid Date") {
+    return res.json({ error: "Invalid Date" });
+  }
+
+  res.json({ unix: date.getTime(), utc: date.toUTCString() });
+});
+
+  const date = new Date(dateParam);
+
+  // Manejar fecha inválida
+  if (date.toString() === "Invalid Date") {
+    return res.json({ error: "Invalid Date" });
+  }
+
+  // Respuesta válida
+  return res.json({
+    unix: date.getTime(),
+    utc: date.toUTCString()
+  });
+});
+
 
 
 // Listen on port set in environment variable or default to 3000
