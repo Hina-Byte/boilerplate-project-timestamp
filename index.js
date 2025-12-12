@@ -1,71 +1,53 @@
 // index.js
-// where your node app starts
 
-// init project
-var express = require('express');
-var app = express();
+const express = require('express');
+const cors = require('cors');
+const app = express();
 
-// enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-// so that your API is remotely testable by FCC 
-var cors = require('cors');
-app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
+// Enable CORS so the API is remotely testable
+app.use(cors({ optionsSuccessStatus: 200 }));
 
-// http://expressjs.com/en/starter/static-files.html
+// Serve static files
 app.use(express.static('public'));
 
-// http://expressjs.com/en/starter/basic-routing.html
-app.get("/", function (req, res) {
+// Root endpoint
+app.get("/", (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
-});
-
-// Timestamp API
-// Timestamp API
+// Timestamp API endpoint
 app.get("/api/:date?", (req, res) => {
   let dateString = req.params.date;
 
+  // Si no se pasa ningún parámetro, usamos la fecha actual
   if (!dateString) {
-    // Sin parámetro: fecha actual
     const now = new Date();
-    return res.json({ unix: now.getTime(), utc: now.toUTCString() });
+    return res.json({
+      unix: now.getTime(),
+      utc: now.toUTCString()
+    });
   }
 
-  // Si es un número grande, interpretarlo como timestamp
+  // Si es solo números, tratar como UNIX timestamp en milisegundos
   if (/^\d+$/.test(dateString)) {
     dateString = parseInt(dateString);
   }
 
   const date = new Date(dateString);
 
+  // Si la fecha es inválida
   if (date.toString() === "Invalid Date") {
     return res.json({ error: "Invalid Date" });
   }
 
-  res.json({ unix: date.getTime(), utc: date.toUTCString() });
-});
-
-  const date = new Date(dateParam);
-
-  // Manejar fecha inválida
-  if (date.toString() === "Invalid Date") {
-    return res.json({ error: "Invalid Date" });
-  }
-
-  // Respuesta válida
-  return res.json({
+  // Fecha válida
+  res.json({
     unix: date.getTime(),
     utc: date.toUTCString()
   });
 });
 
-
-
-// Listen on port set in environment variable or default to 3000
-var listener = app.listen(process.env.PORT || 3000, function () {
+// Start server
+const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port);
 });
